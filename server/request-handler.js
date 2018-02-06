@@ -14,7 +14,7 @@ this file and include it in basic-server.js so that it actually works.
 
 var messages = [];
 var data = {
-  results: [{username: 'JSON'}]
+  results: []
 };
 
 var requestHandler = function(request, response) {
@@ -50,14 +50,14 @@ var requestHandler = function(request, response) {
   // };
 
   // From https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
-  request.on('error', (err) => {
-    console.error(err);
-    response.statusCode = 400;
-    response.end();
-  });
-  response.on('error', (err) => {
-    console.error(err);
-  });
+  // request.on('error', (err) => {
+  //   console.error(err);
+  //   response.statusCode = 400;
+  //   response.end();
+  // });
+  // response.on('error', (err) => {
+  //   console.error(err);
+  // });
   if (request.method === 'POST' && request.url === '/classes/messages') {
     response.writeHead(201, headers);
     var body = [];
@@ -66,14 +66,16 @@ var requestHandler = function(request, response) {
     }).on('end', () => {
       body = Buffer.concat(body);
       body = Buffer.from(body);
-      console.log(body.toString());
+      // console.log(body.toString());
+      data.results.push(JSON.parse(body.toString()));
+      console.log(data);
     });
-    body = JSON.parse(body);
-    console.log('BODY', body);
-    data.results.push();
+    // body = JSON.parse(body);
+    // console.log('BODY', body);
+    // data.results.push(body.toString());
     // request.pipe(response);
    
-    response.end();
+    response.end(JSON.stringify(data));
   } else if (request.method === 'GET' && request.url.startsWith('/classes/messages')) {
     console.log('ASKED FOR MESSAGES!!!11!!!!1!11');
     headers['Content-Type'] = 'plain/text';
@@ -123,4 +125,4 @@ var requestHandler = function(request, response) {
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
 
-exports.abc = requestHandler;
+exports.requestHandler = requestHandler;
