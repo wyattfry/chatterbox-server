@@ -14,7 +14,8 @@ this file and include it in basic-server.js so that it actually works.
 var RETURN_LIMIT = 5;
 var url = require('url');
 var messages = [];
-var data = {
+var data = {results: []};
+var dummyData = {
   results: [{text: '1', roomname: 'testroom', username: 'gwbb'},
     {text: '2', roomname: 'testroom', username: 'gwbb'},
     {text: '3', roomname: 'testroom', username: 'gwbb'},
@@ -23,10 +24,8 @@ var data = {
     {text: '6', roomname: 'testroom', username: 'gwbb'}]};
 
 var requestHandler = function(request, response) {
-  console.log('request', request);
   var pathname = url.parse(request.url).pathname;
   var query = url.parse(request.url, true).query;
-  console.log('query', query);
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -61,8 +60,16 @@ var requestHandler = function(request, response) {
     var body = [];
     request.on('data', (chunk) => {
       body.push(chunk);
-    }).on('end', () => {
-      body = Buffer.concat(body);
+    });
+    
+    request.on('end', () => {
+      if (Array.isArray(body) && body.length > 1) {
+        console.log('body pre concat', body);
+        body = Buffer.concat(body);
+        console.log('body post concat', body);
+      } else {
+        body = body[0];
+      }
       body = Buffer.from(body);
       let message = JSON.parse(body.toString());
       message['createdAt'] = new Date();
@@ -71,10 +78,7 @@ var requestHandler = function(request, response) {
    
     response.end();
   } else if (request.method === 'GET' && pathname === ('/classes/messages')) {
-    console.log('ASKED FOR MESSAGES!!!11!!!!1!11');
-    
     let responseData = {results: []};
-    
     if (query.order) {
       if (query.order === '-createdAt') {
         for (let i = data.results.length - 1;
