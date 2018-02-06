@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"> <!-- good xss defence technique -->
+    <title>chatterbox</title>
+    <link rel="stylesheet" href="styles/styles.css">
+
+    <!-- dependencies -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <script>
+      // YOU DO NOT NEED TO EDIT THIS CODE
+      if (!/(&|\?)username=/.test(window.location.search)) {
+        var newSearch = window.location.search;
+        if (newSearch !== '' & newSearch !== '?') {
+          newSearch += '&';
+        }
+        newSearch += 'username=' + (prompt('What is your name?') || 'anonymous');
+        window.location.search = newSearch;
+      }
+    </script>
+  </head>
+  <body>
+    <div id="main">
+      <h1>chatterbox</h1>
+      <!-- Your HTML goes here! -->
+      <div>
+        Room:
+        <select id="roomSelect"></select>
+        
+        <div class="optionButtons">
+          <a class="open-create-new-room-form" href="#">Create new room</a>
+          <a class="retrieve-messages" href="#">Retrieve messages</a>
+        </div>
+      
+      
+      </div>
+      
+      <form class="create-new-room-form" action="#" method="post">
+        <fieldset>
+          <input class="room-name" type="text" name="roomname" placeholder="New room name">
+          <button id="createRoomButton" type="submit" name="createRoomButton" value="CreateRoom">Create a new room</button>
+          <button id="cancelCreateRoomButton">Cancel</button>
+        </fieldset>
+      </form>
+
+      <form class="send-new-message-form" action="#" method="post">
+        <fieldset>
+          <input id="message" type="text" name="message" placeholder="New message" required>
+          <input id="send" name="sendMessage" type="submit" value="Send message">
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="chats"></div>
+    <!-- your scripts -->
+    <script src="env/config.js"></script>
+    <script src="scripts/app.js"></script>
+    <script>
+      $(function() {
+        app.init();
+        app.getMessages();
+        // app.getMessagesAutomatically();
+      });
+    </script>
+  </body>
+</html>
