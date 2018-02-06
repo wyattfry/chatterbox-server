@@ -11,13 +11,17 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-
+var url = require('url');
 var messages = [];
 var data = {
-  results: []
+  results: [{text:'test', roomname: 'testroom', username:'gwbb'}]
 };
 
 var requestHandler = function(request, response) {
+  console.log('request', request);
+  var pathname = url.parse(request.url).pathname;
+  var query = url.parse(request.url, true).query;
+  console.log('query', query);
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -69,8 +73,9 @@ var requestHandler = function(request, response) {
     }).on('end', () => {
       body = Buffer.concat(body);
       body = Buffer.from(body);
-      // console.log(body.toString());
-      data.results.push(JSON.parse(body.toString()));
+      let message = JSON.parse(body.toString());
+      message['createdAt'] = new Date();
+      data.results.push(message);
       console.log(data);
     });
     // body = JSON.parse(body);
@@ -79,7 +84,7 @@ var requestHandler = function(request, response) {
     // request.pipe(response);
    
     response.end();
-  } else if (request.method === 'GET' && request.url.startsWith('/classes/messages')) {
+  } else if (request.method === 'GET' && pathname === ('/classes/messages')) {
     console.log('ASKED FOR MESSAGES!!!11!!!!1!11');
     headers['Content-Type'] = 'application/json';
     response.writeHead(200, headers);
