@@ -40,7 +40,7 @@ var requestHandler = function(request, response) {
   // See the note below about CORS headers.
   var defaultCorsHeaders = {
     'access-control-allow-origin': '*',
-    'access-control-allow-methods': 'GET, POST, OPTION',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'access-control-allow-headers': 'content-type, accept',
     'access-control-max-age': 10 // Seconds.
   };
@@ -58,7 +58,10 @@ var requestHandler = function(request, response) {
   // response.on('error', (err) => {
   //   console.error(err);
   // });
-  if (request.method === 'POST' && request.url === '/classes/messages') {
+  if (request.method === 'OPTIONS') {
+    response.writeHead(200, headers);
+    response.end();
+  } else if (request.method === 'POST' && request.url === '/classes/messages') {
     response.writeHead(201, headers);
     var body = [];
     request.on('data', (chunk) => {
@@ -75,10 +78,10 @@ var requestHandler = function(request, response) {
     // data.results.push(body.toString());
     // request.pipe(response);
    
-    response.end(JSON.stringify(data));
+    response.end();
   } else if (request.method === 'GET' && request.url.startsWith('/classes/messages')) {
     console.log('ASKED FOR MESSAGES!!!11!!!!1!11');
-    headers['Content-Type'] = 'plain/text';
+    headers['Content-Type'] = 'application/json';
     response.writeHead(200, headers);
     response.end(JSON.stringify(data));
   } else {
