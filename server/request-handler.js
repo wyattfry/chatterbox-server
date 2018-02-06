@@ -13,6 +13,9 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 
 var messages = [];
+var data = {
+  results: [{username: 'JSON'}]
+};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -37,38 +40,49 @@ var requestHandler = function(request, response) {
   // See the note below about CORS headers.
   var defaultCorsHeaders = {
     'access-control-allow-origin': '*',
-    'access-control-allow-methods': 'GET, POST',
+    'access-control-allow-methods': 'GET, POST, OPTION',
     'access-control-allow-headers': 'content-type, accept',
     'access-control-max-age': 10 // Seconds.
   };
   var headers = defaultCorsHeaders;
-  var body = [];
-  request.on('data', (chunk) => {
-    body.push(chunk);
-  }).on('end', () => {
-    body = Buffer.concat(body).toString();
-    response.writeHead(statusCode, headers);
-    // response.statusCode = 200;
-    response.end(body);
-  });
+  // var data = {
+  //   results: [{username: 'JSON'}]
+  // };
 
   // From https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
-  // request.on('error', (err) => {
-  //   console.error(err);
-  //   response.statusCode = 400;
-  //   response.end();
-  // });
-  // response.on('error', (err) => {
-  //   console.error(err);
-  // });
-  // if (request.method === 'POST' && request.url === '/messages') {
-  //   request.pipe(response);
-  // } else if (request.method === 'GET' && request.url === '/messages') {
-  //   console.log('ASKED FOR MESSAGES!!!11!!!!1!11');
-  // } else {
-  //   response.statusCode = 404;
-  //   response.end();
-  // }
+  request.on('error', (err) => {
+    console.error(err);
+    response.statusCode = 400;
+    response.end();
+  });
+  response.on('error', (err) => {
+    console.error(err);
+  });
+  if (request.method === 'POST' && request.url === '/classes/messages') {
+    response.writeHead(201, headers);
+    var body = [];
+    request.on('data', (chunk) => {
+      body.push(chunk);
+    }).on('end', () => {
+      body = Buffer.concat(body);
+      body = Buffer.from(body);
+      console.log(body.toString());
+    });
+    body = JSON.parse(body);
+    console.log('BODY', body);
+    data.results.push();
+    // request.pipe(response);
+   
+    response.end();
+  } else if (request.method === 'GET' && request.url.startsWith('/classes/messages')) {
+    console.log('ASKED FOR MESSAGES!!!11!!!!1!11');
+    headers['Content-Type'] = 'plain/text';
+    response.writeHead(200, headers);
+    response.end(JSON.stringify(data));
+  } else {
+    response.statusCode = 404;
+    response.end();
+  }
   // End https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
 
 

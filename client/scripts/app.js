@@ -2,8 +2,8 @@
 var app = {
   server: 'http://127.0.0.1:3000',
   api: {
-    getMessages: '/messages',
-    postMessages: '/messages'
+    getMessages: '/classes/messages',
+    postMessages: '/classes/messages'
   },
   messages: [],
   rooms: [],
