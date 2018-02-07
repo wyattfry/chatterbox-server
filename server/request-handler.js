@@ -11,10 +11,13 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var express = require('express');
+var app = express();
+var fs = require('fs');
 var RETURN_LIMIT = 5;
 var url = require('url');
 var messages = [];
-var data = {results: []};
+var data = {results: [{text: 'welcome to the lobby!', username: 'Admin', roomname: 'Lobby'}]};
 var dummyData = {
   results: [{text: '1', roomname: 'testroom', username: 'gwbb'},
     {text: '2', roomname: 'testroom', username: 'gwbb'},
@@ -23,9 +26,12 @@ var dummyData = {
     {text: '5', roomname: 'testroom', username: 'gwbb'},
     {text: '6', roomname: 'testroom', username: 'gwbb'}]};
 
+// data = dummyData;
+
 var requestHandler = function(request, response) {
   var pathname = url.parse(request.url).pathname;
   var query = url.parse(request.url, true).query;
+  app.get('/', (req, res) => res.send('Hello World!'));
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -55,6 +61,15 @@ var requestHandler = function(request, response) {
   if (request.method === 'OPTIONS') {
     response.writeHead(200, headers);
     response.end();
+  } else if (request.method === 'GET' && pathname !== '/classes/messages') {
+    console.log('made it here');
+    // app.use(express.static('client'));
+    // fs.readFile('/index.html', function(err, data) {
+    // fs.readFile('../client/index.html', function(err, data) {
+    // response.writeHead(200, {'Content-Type': 'text/html'});
+    // response.write(data);
+    // response.end();
+    // });
   } else if (request.method === 'POST' && pathname === '/classes/messages') {
     response.writeHead(201, headers);
     var body = [];
@@ -73,6 +88,7 @@ var requestHandler = function(request, response) {
       body = Buffer.from(body);
       let message = JSON.parse(body.toString());
       message['createdAt'] = new Date();
+      message['messageId'] = require('crypto').randomBytes(16).toString('hex');
       data.results.push(message);
     });
    
